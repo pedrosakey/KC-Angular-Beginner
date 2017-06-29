@@ -14,7 +14,7 @@ export class ProductService {
     private _http: Http,
     @Inject(BackendUri) private _backendUri) { }
 
-    getProducts(filter: ProductFilter = undefined): Observable<Product[]> {
+    getProducts(filter: ProductFilter): Observable<Product[]> {
         console.log(filter);
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
     | Pink Path                                                        |
@@ -50,10 +50,13 @@ export class ProductService {
     |   - Búsqueda por categoría:                                      |
     |       category.id=x (siendo x el identificador de la categoría)  |
     |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
     if (filter) {
-    options.params.append('category.id',filter.category);
-    options.params.append('q',filter.text);
-    }
+      if (filter.category !== '0' || filter.text !==''){
+          options.params.append('category.id',filter.category);
+          options.params.append('q',filter.text);
+      }
+  
     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
     | Yellow Path                                                      |
     |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
@@ -67,7 +70,12 @@ export class ProductService {
     |   - Búsqueda por estado:                                         |
     |       state=x (siendo x el estado)                               |
     |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+      if(filter.state) {
+          options.params.append('state',filter.state);
+      }
 
+    } 
+   
     return this._http
       .get(`${this._backendUri}/products`,options)
       .map((data: Response): Product[] => Product.fromJsonToList(data.json()));
